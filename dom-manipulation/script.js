@@ -45,7 +45,114 @@ function addQuote() {
     return;
   }
 
-  // Create new quote object
+  // Cr// ========================================
+// DATA MODULE (Responsible for data only)
+// ========================================
+
+const QuoteModel = (() => {
+    let quotes = [
+        { text: "The best way to predict the future is to create it.", category: "Motivation" },
+        { text: "Learning never exhausts the mind.", category: "Education" },
+        { text: "Life is really simple, but we insist on making it complicated.", category: "Life" }
+    ];
+
+    function getAllQuotes() {
+        return quotes;
+    }
+
+    function addQuote(text, category) {
+        quotes.push({ text, category });
+    }
+
+    function getRandomQuote() {
+        if (quotes.length === 0) {
+            return null;
+        }
+        const index = Math.floor(Math.random() * quotes.length);
+        return quotes[index];
+    }
+
+    return { getAllQuotes, addQuote, getRandomQuote };
+})();
+ 
+
+// ========================================
+// UI MODULE (Handles only DOM interaction)
+// ========================================
+
+const QuoteUI = (() => {
+    const quoteDisplay = document.getElementById("quoteDisplay");
+
+    function showQuote(quoteObj) {
+        if (!quoteObj) {
+            quoteDisplay.textContent = "No quotes available.";
+        } else {
+            quoteDisplay.textContent = `"${quoteObj.text}" — (${quoteObj.category})`;
+        }
+    }
+
+    function getInputs() {
+        return {
+            text: document.getElementById("newQuoteText").value.trim(),
+            category: document.getElementById("newQuoteCategory").value.trim()
+        };
+    }
+
+    function clearInputs() {
+        document.getElementById("newQuoteText").value = "";
+        document.getElementById("newQuoteCategory").value = "";
+    }
+
+    return { showQuote, getInputs, clearInputs };
+})();
+
+
+// ========================================
+// CONTROLLER MODULE (Connects UI + Data)
+// ========================================
+
+const QuoteController = (() => {
+    const newQuoteBtn = document.getElementById("newQuote");
+    const addQuoteBtn = document.getElementById("addQuoteBtn");
+
+    // Handle showing a random quote
+    function displayRandomQuote() {
+        const quote = QuoteModel.getRandomQuote();
+        QuoteUI.showQuote(quote);
+    }
+
+    // Handle adding quotes
+    function handleAddQuote() {
+        const inputs = QuoteUI.getInputs();
+        if (inputs.text === "" || inputs.category === "") {
+            alert("Please fill in both fields.");
+            return;
+        }
+
+        QuoteModel.addQuote(inputs.text, inputs.category);
+        QuoteUI.clearInputs();
+        displayRandomQuote(); // Show the newly added quote
+    }
+
+    // Add all event listeners here
+    function setupListeners() {
+        newQuoteBtn.addEventListener("click", displayRandomQuote);
+        addQuoteBtn.addEventListener("click", handleAddQuote);
+    }
+
+    // Initialization
+    function init() {
+        setupListeners();
+        displayRandomQuote();
+    }
+
+    return { init };
+})();
+
+
+// Run app
+QuoteController.init();
+eate new quote object
   const newQuote = {
     text: text,
     category: category
