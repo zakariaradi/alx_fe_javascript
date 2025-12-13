@@ -1,9 +1,11 @@
+/* eslint-env browser */
+/* global document, alert */
+
 // ========================================
 // DATA MODULE (Handles data only)
 // ========================================
 
 const QuoteModel = (() => {
-
     let quotes = [
         { text: "The best way to predict the future is to create it.", category: "Motivation" },
         { text: "Learning never exhausts the mind.", category: "Education" },
@@ -12,7 +14,6 @@ const QuoteModel = (() => {
 
     function getRandomQuote() {
         if (quotes.length === 0) return null;
-
         const index = Math.floor(Math.random() * quotes.length);
         return quotes[index];
     }
@@ -33,14 +34,12 @@ const QuoteModel = (() => {
 // ========================================
 
 const QuoteUI = (() => {
-
     const quoteDisplay = document.getElementById("quoteDisplay");
 
     function showQuote(quoteObj) {
         if (!quoteObj) {
             quoteDisplay.textContent = "No quotes available.";
         } else {
-            // ✅ This is the correct placement
             quoteDisplay.textContent = `"${quoteObj.text}" — (${quoteObj.category})`;
         }
     }
@@ -62,7 +61,6 @@ const QuoteUI = (() => {
         getInputs,
         clearInputs
     };
-
 })();
 
 
@@ -71,7 +69,6 @@ const QuoteUI = (() => {
 // ========================================
 
 const QuoteController = (() => {
-
     const newQuoteBtn = document.getElementById("newQuote");
     const addQuoteBtn = document.getElementById("addQuoteBtn");
 
@@ -90,8 +87,6 @@ const QuoteController = (() => {
 
         QuoteModel.addQuote(text, category);
         QuoteUI.clearInputs();
-
-        // Update displayed quote after adding
         displayRandomQuote();
     }
 
@@ -106,7 +101,6 @@ const QuoteController = (() => {
     }
 
     return { init };
-
 })();
 
 
