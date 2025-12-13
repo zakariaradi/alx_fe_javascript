@@ -1,52 +1,5 @@
-// Initial Quotes Data
-
-let quotes = [
-  { text: "The best way to predict the future is to create it.", category: "Motivation" },
-  { text: "Learning never exhausts the mind.", category: "Education" },
-  { text: "Life is really simple, but we insist on making it complicated.", category: "Life" }
-];
-
-
-// DOM ELEMENT REFERENCES
-
-const quoteDisplay = document.getElementById("quoteDisplay");
-const newQuoteBtn = document.getElementById("newQuote");
-const addQuoteBtn = document.getElementById("addQuoteBtn");
-
-
-// FUNCTION: Show Random Quote
-
-function showRandomQuote() {
-  if (quotes.length === 0) {
-    quoteDisplay.textContent = "No quotes available. Add a quote!";
-    return;
-  }
-
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  const quoteObj = quotes[randomIndex];
-
-  // Update DOM
-  quoteDisplay.textContent = `"${quoteObj.text}" — (${quoteObj.category})`;
-}
-
-
-// FUNCTION: Add New Quote
-
-function addQuote() {
-  const textInput = document.getElementById("newQuoteText");
-  const categoryInput = document.getElementById("newQuoteCategory");
-
-  const text = textInput.value.trim();
-  const category = categoryInput.value.trim();
-
-  // Validate inputs
-  if (text === "" || category === "") {
-    alert("Please enter both a quote and a category.");
-    return;
-  }
-
-  // Cr// ========================================
-// DATA MODULE (Responsible for data only)
+// ========================================
+// DATA MODULE (Handles data only)
 // ========================================
 
 const QuoteModel = (() => {
@@ -56,28 +9,25 @@ const QuoteModel = (() => {
         { text: "Life is really simple, but we insist on making it complicated.", category: "Life" }
     ];
 
-    function getAllQuotes() {
-        return quotes;
+    function getRandomQuote() {
+        if (quotes.length === 0) return null;
+        const index = Math.floor(Math.random() * quotes.length);
+        return quotes[index];
     }
 
     function addQuote(text, category) {
         quotes.push({ text, category });
     }
 
-    function getRandomQuote() {
-        if (quotes.length === 0) {
-            return null;
-        }
-        const index = Math.floor(Math.random() * quotes.length);
-        return quotes[index];
-    }
-
-    return { getAllQuotes, addQuote, getRandomQuote };
+    return {
+        getRandomQuote,
+        addQuote
+    };
 })();
- 
+
 
 // ========================================
-// UI MODULE (Handles only DOM interaction)
+// UI MODULE (Updates DOM only)
 // ========================================
 
 const QuoteUI = (() => {
@@ -103,44 +53,49 @@ const QuoteUI = (() => {
         document.getElementById("newQuoteCategory").value = "";
     }
 
-    return { showQuote, getInputs, clearInputs };
+    return {
+        showQuote,
+        getInputs,
+        clearInputs
+    };
 })();
 
 
 // ========================================
-// CONTROLLER MODULE (Connects UI + Data)
+// CONTROLLER MODULE (Bridges UI + Data)
 // ========================================
 
 const QuoteController = (() => {
     const newQuoteBtn = document.getElementById("newQuote");
     const addQuoteBtn = document.getElementById("addQuoteBtn");
 
-    // Handle showing a random quote
+    // Displays a random quote
     function displayRandomQuote() {
         const quote = QuoteModel.getRandomQuote();
         QuoteUI.showQuote(quote);
     }
 
-    // Handle adding quotes
-    function handleAddQuote() {
-        const inputs = QuoteUI.getInputs();
-        if (inputs.text === "" || inputs.category === "") {
+    // Adds a new quote
+    function addQuote() {
+        const { text, category } = QuoteUI.getInputs();
+
+        if (text === "" || category === "") {
             alert("Please fill in both fields.");
             return;
         }
 
-        QuoteModel.addQuote(inputs.text, inputs.category);
+        QuoteModel.addQuote(text, category);
         QuoteUI.clearInputs();
-        displayRandomQuote(); // Show the newly added quote
+        displayRandomQuote(); // Immediately refresh displayed quote
     }
 
-    // Add all event listeners here
+    // Setup all event listeners
     function setupListeners() {
         newQuoteBtn.addEventListener("click", displayRandomQuote);
-        addQuoteBtn.addEventListener("click", handleAddQuote);
+        addQuoteBtn.addEventListener("click", addQuote);
     }
 
-    // Initialization
+    // Initialization function
     function init() {
         setupListeners();
         displayRandomQuote();
@@ -150,31 +105,5 @@ const QuoteController = (() => {
 })();
 
 
-// Run app
+// Initialize the application
 QuoteController.init();
-eate new quote object
-  const newQuote = {
-    text: text,
-    category: category
-  };
-
-  // Add to array
-  quotes.push(newQuote);
-
-  // Clear inputs
-  textInput.value = "";
-  categoryInput.value = "";
-
-  alert("Quote added successfully!");
-}
-
-
-// EVENT LISTENERS
-
-newQuoteBtn.addEventListener("click", showRandomQuote);
-addQuoteBtn.addEventListener("click", addQuote);
-
-
-// Show a quote on page load
-
-showRandomQuote();
