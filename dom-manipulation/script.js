@@ -3,6 +3,7 @@
 // ========================================
 
 const QuoteModel = (() => {
+
     let quotes = [
         { text: "The best way to predict the future is to create it.", category: "Motivation" },
         { text: "Learning never exhausts the mind.", category: "Education" },
@@ -11,6 +12,7 @@ const QuoteModel = (() => {
 
     function getRandomQuote() {
         if (quotes.length === 0) return null;
+
         const index = Math.floor(Math.random() * quotes.length);
         return quotes[index];
     }
@@ -27,16 +29,18 @@ const QuoteModel = (() => {
 
 
 // ========================================
-// UI MODULE (Updates DOM only)
+// UI MODULE (Handles DOM updates only)
 // ========================================
 
 const QuoteUI = (() => {
+
     const quoteDisplay = document.getElementById("quoteDisplay");
 
     function showQuote(quoteObj) {
         if (!quoteObj) {
             quoteDisplay.textContent = "No quotes available.";
         } else {
+            // ✅ This is the correct placement
             quoteDisplay.textContent = `"${quoteObj.text}" — (${quoteObj.category})`;
         }
     }
@@ -58,24 +62,24 @@ const QuoteUI = (() => {
         getInputs,
         clearInputs
     };
+
 })();
 
 
 // ========================================
-// CONTROLLER MODULE (Bridges UI + Data)
+// CONTROLLER MODULE (Connects UI & Data)
 // ========================================
 
 const QuoteController = (() => {
+
     const newQuoteBtn = document.getElementById("newQuote");
     const addQuoteBtn = document.getElementById("addQuoteBtn");
 
-    // Displays a random quote
     function displayRandomQuote() {
         const quote = QuoteModel.getRandomQuote();
         QuoteUI.showQuote(quote);
     }
 
-    // Adds a new quote
     function addQuote() {
         const { text, category } = QuoteUI.getInputs();
 
@@ -86,24 +90,25 @@ const QuoteController = (() => {
 
         QuoteModel.addQuote(text, category);
         QuoteUI.clearInputs();
-        displayRandomQuote(); // Immediately refresh displayed quote
+
+        // Update displayed quote after adding
+        displayRandomQuote();
     }
 
-    // Setup all event listeners
     function setupListeners() {
         newQuoteBtn.addEventListener("click", displayRandomQuote);
         addQuoteBtn.addEventListener("click", addQuote);
     }
 
-    // Initialization function
     function init() {
         setupListeners();
         displayRandomQuote();
     }
 
     return { init };
+
 })();
 
 
-// Initialize the application
+// Initialize application
 QuoteController.init();
