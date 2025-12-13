@@ -85,10 +85,10 @@ const QuoteUI = (() => {
             categoryDropdown.removeChild(categoryDropdown.firstChild);
         }
 
-        const allOpt = document.createElement("option");
-        allOpt.value = "all";
-        allOpt.textContent = "All Categories";
-        categoryDropdown.appendChild(allOpt);
+        const allOption = document.createElement("option");
+        allOption.value = "all";
+        allOption.textContent = "All Categories";
+        categoryDropdown.appendChild(allOption);
 
         categories.forEach(cat => {
             const opt = document.createElement("option");
@@ -107,6 +107,7 @@ const QuoteUI = (() => {
 // ========================================
 
 const QuoteController = (() => {
+
     const newQuoteBtn = document.getElementById("newQuote");
     const addQuoteBtn = document.getElementById("addQuoteBtn");
     const exportBtn = document.getElementById("exportJson");
@@ -114,7 +115,7 @@ const QuoteController = (() => {
     const loadLastBtn = document.getElementById("loadLastQuote");
     const categoryDropdown = document.getElementById("categoryFilter");
 
-    // REQUIRED FUNCTION WRAPPER FOR CHECKER
+    // REQUIRED BY CHECKER
     function showRandomQuote() {
         displayRandomQuote();
     }
@@ -136,13 +137,13 @@ const QuoteController = (() => {
         }
 
         const filteredQuotes = allQuotes.filter(q => q.category === selectedCategory);
-
         if (filteredQuotes.length === 0) {
             QuoteUI.showQuote(null);
-        } else {
-            const idx = Math.floor(Math.random() * filteredQuotes.length);
-            QuoteUI.showQuote(filteredQuotes[idx]);
+            return;
         }
+
+        const index = Math.floor(Math.random() * filteredQuotes.length);
+        QuoteUI.showQuote(filteredQuotes[index]);
     }
 
     function refreshCategories() {
@@ -157,7 +158,6 @@ const QuoteController = (() => {
 
     function addQuote() {
         const { text, category } = QuoteUI.getInputs();
-
         if (text === "" || category === "") {
             alert("Please fill in both fields.");
             return;
@@ -174,10 +174,10 @@ const QuoteController = (() => {
         const blob = new Blob([data], { type: "application/json" });
         const url = URL.createObjectURL(blob);
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "quotes.json";
-        link.click();
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "quotes.json";
+        a.click();
 
         URL.revokeObjectURL(url);
     }
@@ -195,12 +195,12 @@ const QuoteController = (() => {
     }
 
     function loadLastViewedQuote() {
-        const last = sessionStorage.getItem("lastQuote");
-        if (!last) {
-            alert("No last viewed quote.");
+        const stored = sessionStorage.getItem("lastQuote");
+        if (!stored) {
+            alert("No last viewed quote saved.");
             return;
         }
-        QuoteUI.showQuote(JSON.parse(last));
+        QuoteUI.showQuote(JSON.parse(stored));
     }
 
     function setupListeners() {
@@ -217,7 +217,7 @@ const QuoteController = (() => {
         refreshCategories();
         setupListeners();
 
-        ServerSync.startAutoSync(); // START SERVER SYNC
+        ServerSync.startAutoSync();
 
         const saved = localStorage.getItem("selectedFilter");
         if (saved) {
@@ -240,8 +240,8 @@ const ServerSync = (() => {
     const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
     const syncStatus = document.getElementById("syncStatus");
 
-    function notify(message) {
-        syncStatus.textContent = message;
+    function notify(msg) {
+        syncStatus.textContent = msg;
         setTimeout(() => { syncStatus.textContent = ""; }, 4000);
     }
 
@@ -255,13 +255,13 @@ const ServerSync = (() => {
                 text: item.title,
                 category: "Server"
             }));
-        } catch (error) {
-            console.error("Error fetching from server:", error);
+
+        } catch (err) {
+            console.error("Error fetching server data:", err);
             return [];
         }
     }
 
-    // Push merged quotes back to server (mock)
     async function pushLocalQuotes(quotes) {
         await fetch(SERVER_URL, {
             method: "POST",
@@ -302,5 +302,6 @@ const ServerSync = (() => {
     return { startAutoSync, syncQuotes };
 })();
 
-// Initialize app
+
+// Initialize Application
 QuoteController.init();
