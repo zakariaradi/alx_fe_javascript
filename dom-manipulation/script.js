@@ -12,24 +12,20 @@ const exportBtn = document.getElementById("exportQuotes");
 const categoryFilter = document.getElementById("categoryFilter");
 const syncStatus = document.getElementById("syncStatus");
 
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
+
 // --------------------
-// STORAGE HELPERS
+// STORAGE
 // --------------------
 function saveQuotes() {
   localStorage.setItem("quotes", JSON.stringify(quotes));
 }
 
 // --------------------
-// DISPLAY FUNCTIONS
+// DISPLAY
 // --------------------
 function displayQuotes(list) {
   quoteDisplay.innerHTML = "";
-
-  if (list.length === 0) {
-    quoteDisplay.textContent = "No quotes available.";
-    return;
-  }
-
   list.forEach(q => {
     const p = document.createElement("p");
     p.textContent = `"${q.text}" (${q.category})`;
@@ -44,17 +40,17 @@ function showRandomQuote() {
 }
 
 // --------------------
-// CATEGORY FILTERING
+// FILTERING
 // --------------------
 function populateCategories() {
   const categories = [...new Set(quotes.map(q => q.category))];
   categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
 
   categories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    categoryFilter.appendChild(opt);
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    categoryFilter.appendChild(option);
   });
 
   const saved = localStorage.getItem("selectedCategory");
@@ -74,7 +70,7 @@ function filterQuotes() {
 }
 
 // --------------------
-// ADD QUOTES
+// ADD QUOTE + POST TO SERVER
 // --------------------
 function createAddQuoteForm() {
   const div = document.createElement("div");
@@ -95,7 +91,17 @@ function createAddQuoteForm() {
   document.body.appendChild(div);
 }
 
-function addQuote() {
+async function postQuoteToServer(quote) {
+  await fetch(SERVER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(quote)
+  });
+}
+
+async function addQuote() {
   const text = document.getElementById("newQuoteText").value.trim();
   const category = document.getElementById("newQuoteCategory").value.trim();
 
@@ -104,28 +110,29 @@ function addQuote() {
     return;
   }
 
-  quotes.push({
+  const newQuote = {
     id: Date.now(),
     text,
     category
-  });
+  };
 
+  quotes.push(newQuote);
   saveQuotes();
+
+  // POST to mock server
+  await postQuoteToServer(newQuote);
+
   populateCategories();
   filterQuotes();
 }
 
 // --------------------
-// SERVER SYNC (SIMULATION)
+// SERVER SYNC (GET)
 // --------------------
-const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
-
-// Fetch from server (simulation)
 async function fetchQuotesFromServer() {
   const response = await fetch(SERVER_URL);
   const data = await response.json();
 
-  // Simulate server quotes
   return data.slice(0, 5).map(item => ({
     id: item.id,
     text: item.title,
@@ -133,11 +140,10 @@ async function fetchQuotesFromServer() {
   }));
 }
 
-// Sync logic (server wins)
 async function syncQuotes() {
   const serverQuotes = await fetchQuotesFromServer();
 
-  // Conflict resolution: server takes precedence
+  // Conflict resolution: server wins
   quotes = serverQuotes;
   saveQuotes();
 
@@ -147,7 +153,7 @@ async function syncQuotes() {
   syncStatus.textContent = "Quotes synced with server!";
 }
 
-// Periodic sync every 30 seconds
+// Periodic sync
 setInterval(syncQuotes, 30000);
 
 // --------------------
@@ -169,7 +175,6 @@ function exportQuotesToJson() {
 
 function importFromJsonFile(event) {
   const reader = new FileReader();
-
   reader.onload = function (event) {
     const importedQuotes = JSON.parse(event.target.result);
     quotes.push(...importedQuotes);
@@ -178,12 +183,11 @@ function importFromJsonFile(event) {
     filterQuotes();
     alert("Quotes imported successfully!");
   };
-
   reader.readAsText(event.target.files[0]);
 }
 
 // --------------------
-// EVENTS & INIT
+// INIT
 // --------------------
 newQuoteBtn.addEventListener("click", showRandomQuote);
 exportBtn.addEventListener("click", exportQuotesToJson);
@@ -191,6 +195,7 @@ exportBtn.addEventListener("click", exportQuotesToJson);
 createAddQuoteForm();
 populateCategories();
 filterQuotes();
+
 
 
 
